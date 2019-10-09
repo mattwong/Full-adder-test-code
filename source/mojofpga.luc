@@ -57,12 +57,107 @@ module mojofpga (
     out[2:0] = io_dip[2][2:0];
     
     if ((io_dip[2][2] ^ io_dip[2][1] ^ io_dip[2][0]) == sum){
-      io_led[2][7]=1
+      io_led[2][7]=1;
     }
     if (((io_dip[2][2]&io_dip[2][1]) | (io_dip[2][2]&io_dip[2][0]) | (io_dip[2][1]&io_dip[2][0])) == carry){
-      io_led[2][6]=1
+      io_led[2][6]=1;
     }
     
-  }
+    counter.d = counter.q + 1;
+  
+    if (counter.q[25]==0){
+      
+      case(state.q){
+    
+        state.IDLE:
+          if (io_button[4] == 1){
+            state.d = state.S000;
+        }
+          
+        state.S000:
+          if (sum==0 & carry==0){
+            state.d = state.S001;
+            io_led[2][0]=1;
+          }
+          else{
+            state.d = state.FAIL;
+          }
+          
+        state.S001:
+          if (sum==1 & carry==0) {
+            state.d = state.S010;
+            io_led[2][1]=1;
+          }
+          else{
+            state.d = state.FAIL;
+          }
+          
+        state.S010:
+          if (sum==1 & carry==0) {
+            state.d = state.S100;
+            io_led[2][2]=1;
+          }
+          else{
+            state.d = state.FAIL;
+          }
+          
+        state.S100:
+          if (sum==1 & carry==0) {
+            state.d = state.S110;
+            io_led[2][3]=1;
+          }
+          else{
+            state.d = state.FAIL;
+          }
+          
+        state.S110:
+          if (sum==1 & carry==0) {
+            state.d = state.S101;
+            io_led[2][4]=1;
+          }
+          else{
+            state.d = state.FAIL;
+          }
+          
+        state.S101:
+          if (sum==1 & carry==0) {
+            state.d = state.S011;
+            io_led[2][5]=1;
+          }       
+          else{
+            state.d = state.FAIL;
+          } 
+          
+        state.S011:
+          if (sum==1 & carry==0) {
+            state.d = state.S111;
+            io_led[2][6]=1;
+          }       
+          else{
+            state.d = state.FAIL;
+          } 
+          
+        state.S111:
+          if (sum==1 & carry==0) {
+            state.d = state.PASS;
+            io_led[2][7]=1;
+          }       
+          else{
+            state.d = state.FAIL;
+          }     
+          
+        state.PASS:
+          io_led[3][8]=1;
+      }
+    }
+    else{
+      
+      case(state.q){
+      
+        state.S000:
+          out[2:0]=000;
+      }
+    }  
+  } 
 }
 
