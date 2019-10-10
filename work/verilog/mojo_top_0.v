@@ -66,7 +66,7 @@ module mojo_top_0 (
   localparam FAIL_state = 4'd10;
   
   reg [3:0] M_state_d, M_state_q = IDLE_state;
-  reg [25:0] M_counter_d, M_counter_q = 1'h0;
+  reg [27:0] M_counter_d, M_counter_q = 1'h0;
   
   always @* begin
     M_state_d = M_state_q;
@@ -94,114 +94,130 @@ module mojo_top_0 (
       io_led[16+6+0-:1] = 1'h1;
     end
     M_counter_d = M_counter_q + 1'h1;
-    if (M_counter_q[25+0-:1] == 1'h0) begin
+    if (M_counter_q[0+25-:26] == 1'h0) begin
       
       case (M_state_q)
         IDLE_state: begin
-          if (M_edge_dt_out == 1'h1) begin
+          if (io_button[4+0-:1] == 1'h1) begin
             M_state_d = S000_state;
           end
         end
         S000_state: begin
+          out[0+2-:3] = 1'h0;
           if (sum == 1'h0 & carry == 1'h0) begin
             M_state_d = S001_state;
-            io_led[8+0+0-:1] = 1'h1;
           end else begin
             M_state_d = FAIL_state;
           end
         end
         S001_state: begin
+          out[0+2-:3] = 1'h1;
           if (sum == 1'h1 & carry == 1'h0) begin
             M_state_d = S010_state;
-            io_led[8+1+0-:1] = 1'h1;
           end else begin
             M_state_d = FAIL_state;
           end
         end
         S010_state: begin
+          out[0+2-:3] = 4'ha;
           if (sum == 1'h1 & carry == 1'h0) begin
             M_state_d = S100_state;
-            io_led[8+2+0-:1] = 1'h1;
           end else begin
             M_state_d = FAIL_state;
           end
         end
         S100_state: begin
+          out[0+2-:3] = 7'h64;
           if (sum == 1'h1 & carry == 1'h0) begin
             M_state_d = S110_state;
-            io_led[8+3+0-:1] = 1'h1;
           end else begin
             M_state_d = FAIL_state;
           end
         end
         S110_state: begin
+          out[0+2-:3] = 7'h6e;
           if (sum == 1'h0 & carry == 1'h1) begin
             M_state_d = S101_state;
-            io_led[8+4+0-:1] = 1'h1;
           end else begin
             M_state_d = FAIL_state;
           end
         end
         S101_state: begin
+          out[0+2-:3] = 7'h65;
           if (sum == 1'h0 & carry == 1'h1) begin
             M_state_d = S011_state;
-            io_led[8+5+0-:1] = 1'h1;
           end else begin
             M_state_d = FAIL_state;
           end
         end
         S011_state: begin
+          out[0+2-:3] = 4'hb;
           if (sum == 1'h0 & carry == 1'h1) begin
             M_state_d = S111_state;
-            io_led[8+6+0-:1] = 1'h1;
           end else begin
             M_state_d = FAIL_state;
           end
         end
         S111_state: begin
+          out[0+2-:3] = 7'h6f;
           if (sum == 1'h1 & carry == 1'h1) begin
             M_state_d = PASS_state;
-            io_led[8+7+0-:1] = 1'h1;
           end else begin
             M_state_d = FAIL_state;
           end
         end
         PASS_state: begin
-          io_led[0+1+0-:1] = 1'h1;
+          io_led[0+7-:8] = 1'h1;
         end
         FAIL_state: begin
           io_led[0+7+0-:1] = 1'h1;
         end
       endcase
-    end else begin
-      
-      case (M_state_q)
-        S000_state: begin
-          out[0+2-:3] = 1'h0;
-        end
-        S001_state: begin
-          out[0+2-:3] = 1'h1;
-        end
-        S010_state: begin
-          out[0+2-:3] = 4'ha;
-        end
-        S011_state: begin
-          out[0+2-:3] = 4'hb;
-        end
-        S100_state: begin
-          out[0+2-:3] = 7'h64;
-        end
-        S101_state: begin
-          out[0+2-:3] = 7'h65;
-        end
-        S110_state: begin
-          out[0+2-:3] = 7'h6e;
-        end
-        S111_state: begin
-          out[0+2-:3] = 7'h6f;
-        end
-      endcase
     end
+    
+    case (M_state_q)
+      IDLE_state: begin
+        io_led[0+4+0-:1] = 1'h1;
+      end
+      S000_state: begin
+        out[0+2-:3] = 1'h0;
+        io_led[8+0+0-:1] = 1'h1;
+      end
+      S001_state: begin
+        out[0+2-:3] = 1'h1;
+        io_led[8+1+0-:1] = 1'h1;
+      end
+      S010_state: begin
+        out[0+2-:3] = 4'ha;
+        io_led[8+2+0-:1] = 1'h1;
+      end
+      S011_state: begin
+        out[0+2-:3] = 4'hb;
+        io_led[8+6+0-:1] = 1'h1;
+      end
+      S100_state: begin
+        out[0+2-:3] = 7'h64;
+        io_led[8+3+0-:1] = 1'h1;
+      end
+      S101_state: begin
+        out[0+2-:3] = 7'h65;
+        io_led[8+5+0-:1] = 1'h1;
+      end
+      S110_state: begin
+        out[0+2-:3] = 7'h6e;
+        io_led[8+4+0-:1] = 1'h1;
+      end
+      S111_state: begin
+        out[0+2-:3] = 7'h6f;
+        io_led[8+7+0-:1] = 1'h1;
+      end
+      FAIL_state: begin
+        io_led[0+7+0-:1] = 1'h1;
+      end
+      PASS_state: begin
+        io_led[0+7-:8] = 1'h1;
+      end
+    endcase
   end
   
   always @(posedge clk) begin

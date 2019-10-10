@@ -1,7 +1,7 @@
-Release 14.7 - par P.20131013 (nt64)
+Release 14.7 - par P.20131013 (lin64)
 Copyright (c) 1995-2013 Xilinx, Inc.  All rights reserved.
 
-Thu Oct 10 18:07:46 2019
+Thu Oct 10 23:25:27 2019
 
 
 INFO: The IO information is provided in three file formats as part of the Place and Route (PAR) process.  These formats are:
@@ -48,11 +48,11 @@ Pinout by Pin Number:
 |P26       |io_led[23]  |IOB      |IO_L37N_3                 |OUTPUT   |LVTTL      |3             |12        |SLOW     |           |         |       |LOCATED   |NO         |NONE            |
 |P27       |            |IOBM     |IO_L37P_3                 |UNUSED   |           |3             |          |         |           |         |       |          |           |                |
 |P28       |            |         |VCCINT                    |         |           |              |          |         |           |         |1.2    |          |           |                |
-|P29       |            |IOBS     |IO_L36N_3                 |UNUSED   |           |3             |          |         |           |         |       |          |           |                |
-|P30       |            |IOBM     |IO_L36P_3                 |UNUSED   |           |3             |          |         |           |         |       |          |           |                |
+|P29       |out[0]      |IOB      |IO_L36N_3                 |OUTPUT   |LVTTL      |3             |12        |SLOW     |           |         |       |LOCATED   |NO         |NONE            |
+|P30       |out[1]      |IOB      |IO_L36P_3                 |OUTPUT   |LVTTL      |3             |12        |SLOW     |           |         |       |LOCATED   |NO         |NONE            |
 |P31       |            |         |VCCO_3                    |         |           |3             |          |         |           |         |3.30   |          |           |                |
 |P32       |            |IOBS     |IO_L2N_3                  |UNUSED   |           |3             |          |         |           |         |       |          |           |                |
-|P33       |            |IOBM     |IO_L2P_3                  |UNUSED   |           |3             |          |         |           |         |       |          |           |                |
+|P33       |out[2]      |IOB      |IO_L2P_3                  |OUTPUT   |LVTTL      |3             |12        |SLOW     |           |         |       |LOCATED   |NO         |NONE            |
 |P34       |            |IOBS     |IO_L1N_VREF_3             |UNUSED   |           |3             |          |         |           |         |       |          |           |                |
 |P35       |            |IOBM     |IO_L1P_3                  |UNUSED   |           |3             |          |         |           |         |       |          |           |                |
 |P36       |            |         |VCCAUX                    |         |           |              |          |         |           |         |3.3    |          |           |                |
@@ -80,15 +80,15 @@ Pinout by Pin Number:
 |P58       |io_dip(22)  |IOB      |IO_L14P_D11_2             |INPUT    |LVTTL      |2             |          |         |PULLDOWN   |NONE     |       |LOCATED   |NO         |NONE            |
 |P59       |            |IOBS     |IO_L13N_D10_2             |UNUSED   |           |2             |          |         |           |         |       |          |           |                |
 |P60       |            |IOBM     |IO_L13P_M1_2              |UNUSED   |           |2             |          |         |           |         |       |          |           |                |
-|P61       |out[2]      |IOB      |IO_L12N_D2_MISO3_2        |OUTPUT   |LVCMOS25*  |2             |12        |SLOW     |           |         |       |UNLOCATED |NO         |NONE            |
-|P62       |vcc[1]      |IOB      |IO_L12P_D1_MISO2_2        |OUTPUT   |LVCMOS25*  |2             |12        |SLOW     |           |         |       |UNLOCATED |NO         |NONE            |
+|P61       |vcc[0]      |IOB      |IO_L12N_D2_MISO3_2        |OUTPUT   |LVCMOS25*  |2             |12        |SLOW     |           |         |       |UNLOCATED |NO         |NONE            |
+|P62       |            |IOBM     |IO_L12P_D1_MISO2_2        |UNUSED   |           |2             |          |         |           |         |       |          |           |                |
 |P63       |            |         |VCCO_2                    |         |           |2             |          |         |           |         |2.50   |          |           |                |
-|P64       |out[1]      |IOB      |IO_L3N_MOSI_CSI_B_MISO0_2 |OUTPUT   |LVCMOS25*  |2             |12        |SLOW     |           |         |       |UNLOCATED |NO         |NONE            |
-|P65       |vcc[0]      |IOB      |IO_L3P_D0_DIN_MISO_MISO1_2|OUTPUT   |LVCMOS25*  |2             |12        |SLOW     |           |         |       |UNLOCATED |NO         |NONE            |
+|P64       |            |IOBS     |IO_L3N_MOSI_CSI_B_MISO0_2 |UNUSED   |           |2             |          |         |           |         |       |          |           |                |
+|P65       |            |IOBM     |IO_L3P_D0_DIN_MISO_MISO1_2|UNUSED   |           |2             |          |         |           |         |       |          |           |                |
 |P66       |io_dip(21)  |IOB      |IO_L2N_CMPMOSI_2          |INPUT    |LVTTL      |2             |          |         |PULLDOWN   |NONE     |       |LOCATED   |NO         |NONE            |
 |P67       |io_dip(20)  |IOB      |IO_L2P_CMPCLK_2           |INPUT    |LVTTL      |2             |          |         |PULLDOWN   |NONE     |       |LOCATED   |NO         |NONE            |
 |P68       |            |         |GND                       |         |           |              |          |         |           |         |       |          |           |                |
-|P69       |out[0]      |IOB      |IO_L1N_M0_CMPMISO_2       |OUTPUT   |LVCMOS25*  |2             |12        |SLOW     |           |         |       |UNLOCATED |NO         |NONE            |
+|P69       |vcc[1]      |IOB      |IO_L1N_M0_CMPMISO_2       |OUTPUT   |LVCMOS25*  |2             |12        |SLOW     |           |         |       |UNLOCATED |NO         |NONE            |
 |P70       |cclk        |IOB      |IO_L1P_CCLK_2             |INPUT    |LVTTL      |2             |          |         |           |NONE     |       |LOCATED   |NO         |NONE            |
 |P71       |            |         |DONE_2                    |         |           |              |          |         |           |         |       |          |           |                |
 |P72       |            |         |CMPCS_B_2                 |         |           |              |          |         |           |         |       |          |           |                |
