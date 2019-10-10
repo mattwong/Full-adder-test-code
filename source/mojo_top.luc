@@ -51,6 +51,7 @@ module mojo_top (
     
     btn_cond.in=io_button[4];
     edge_dt.in=btn_cond.out;
+    //io_led[2][4]=io_button[4];
     
     io_led[2][0] = carry;  // 51
     io_led[2][1] = sum;    // 50
@@ -148,7 +149,10 @@ module mojo_top (
           }     
           
         state.PASS:
-          io_led[1]=1;
+          io_led[0][1]=1;
+          
+        state.FAIL:
+          io_led[0][7]=1;  
       }
     }
     else{

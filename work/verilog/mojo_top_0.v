@@ -167,7 +167,10 @@ module mojo_top_0 (
           end
         end
         PASS_state: begin
-          io_led[8+7-:8] = 1'h1;
+          io_led[0+1+0-:1] = 1'h1;
+        end
+        FAIL_state: begin
+          io_led[0+7+0-:1] = 1'h1;
         end
       endcase
     end else begin
