@@ -2,10 +2,10 @@
 <DARoots Version="1" Minor="26">
   <FileSet Name="constrs_in" Type="Constrs" RelSrcDir="$PSRCDIR/constrs_1">
     <Filter Type="Constrs"/>
-    <File Path="$PSRCDIR/constrs_1/imports/components/io_shield.ucf">
+    <File Path="$PSRCDIR/constrs_1/imports/constraint/io.ucf">
       <FileInfo>
-        <Attr Name="ImportPath" Val="D:/SUTD/Mojo IDE/library/components/io_shield.ucf"/>
-        <Attr Name="ImportTime" Val="1477283388"/>
+        <Attr Name="ImportPath" Val="$PPRDIR/../../../constraint/io.ucf"/>
+        <Attr Name="ImportTime" Val="1570698401"/>
         <Attr Name="UsedInSynthesis" Val="1"/>
         <Attr Name="UsedInImplementation" Val="1"/>
       </FileInfo>

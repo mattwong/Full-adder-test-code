@@ -15,41 +15,170 @@ module mojo_top (
     output io_seg [8],      // 7-segment LEDs on IO Shield
     output io_sel [4],      // Digit select on IO Shield
     input io_button [5],    // 5 buttons on IO Shield
-    input io_dip [3][8]     // DIP switches on IO Shield
+    input io_dip [3][8],     // DIP switches on IO Shield
+    
+    output out[3],
+    input sum,
+    input carry,
+    output vcc[2]
   ) {
   
-  sig rst;                  // reset signal
+  sig rst;
   
   .clk(clk) {
     // The reset conditioner is used to synchronize the reset signal to the FPGA
     // clock. This ensures the entire FPGA comes out of reset at the same time.
     reset_conditioner reset_cond;
-    
-    edge_detector edge_detector (#RISE(1), #FALL(0));
-    
+    button_conditioner btn_cond;
+    edge_detector edge_dt(#RISE(1),#FALL(0));
     .rst(rst) {
-      multi_seven_seg seg;
-      multi_dec_ctr dec_ctr;
-      counter ctr (#SIZE(1), #DIV(24));
+      fsm state = {IDLE, S000, S001, S010, S100, S110, S101, S011, S111, PASS, FAIL};
     }
+    dff counter[26];
   }
-  
+
   always {
     reset_cond.in = ~rst_n;   // input raw inverted reset signal
     rst = reset_cond.out;     // conditioned reset
-    
-    led = c{3b0, io_button};  // connect buttons to LEDs
+    led = 8h00;               // connect buttons to LEDs
     spi_miso = bz;            // not using SPI
     spi_channel = bzzzz;      // not using flags
     avr_rx = bz;              // not using serial port
     
-    edge_detector.in = ctr.value;
-    dec_ctr.inc = edge_detector.out;
-    seg.values = dec_ctr.digits;
+    io_led = 3x{{8h00}};    // turn LEDs off
+    io_seg = 8hff;          // turn segments off
+    io_sel = 4hf;           // select no digits
     
-    io_seg = ~seg.seg; // connect segments to the driver
-    io_sel = ~seg.sel; // connect digit select to the driver
+    btn_cond.in=io_button[4];
+    edge_dt.in=btn_cond.out;
     
-    io_led = io_dip;   // connect the DIP switches to the LEDs
-  }    
+    io_led[2][0] = carry;  // 51
+    io_led[2][1] = sum;    // 50
+    out[2:0] = io_dip[2][2:0];  // 75,78,79
+    vcc[1:0] = io_dip[0][1:0];  // 120,121
+    
+    if ((io_dip[2][2] ^ io_dip[2][1] ^ io_dip[2][0]) == sum){
+      io_led[2][7]=1;
+    }
+    if (((io_dip[2][2]&io_dip[2][1]) | (io_dip[2][2]&io_dip[2][0]) | (io_dip[2][1]&io_dip[2][0])) == carry){
+      io_led[2][6]=1;
+    }
+    
+    counter.d = counter.q + 1;
+  
+    if (counter.q[25]==0){
+      
+      case(state.q){
+    
+        state.IDLE:
+          if (edge_dt.out == 1){
+            state.d = state.S000;
+        }
+          
+        state.S000:
+          if (sum==0 & carry==0){
+            state.d = state.S001;
+            io_led[1][0]=1;
+          }
+          else{
+            state.d = state.FAIL;
+          }
+          
+        state.S001:
+          if (sum==1 & carry==0) {
+            state.d = state.S010;
+            io_led[1][1]=1;
+          }
+          else{
+            state.d = state.FAIL;
+          }
+          
+        state.S010:
+          if (sum==1 & carry==0) {
+            state.d = state.S100;
+            io_led[1][2]=1;
+          }
+          else{
+            state.d = state.FAIL;
+          }
+          
+        state.S100:
+          if (sum==1 & carry==0) {
+            state.d = state.S110;
+            io_led[1][3]=1;
+          }
+          else{
+            state.d = state.FAIL;
+          }
+          
+        state.S110:
+          if (sum==0 & carry==1) {
+            state.d = state.S101;
+            io_led[1][4]=1;
+          }
+          else{
+            state.d = state.FAIL;
+          }
+          
+        state.S101:
+          if (sum==0 & carry==1) {
+            state.d = state.S011;
+            io_led[1][5]=1;
+          }       
+          else{
+            state.d = state.FAIL;
+          } 
+          
+        state.S011:
+          if (sum==0 & carry==1) {
+            state.d = state.S111;
+            io_led[1][6]=1;
+          }       
+          else{
+            state.d = state.FAIL;
+          } 
+          
+        state.S111:
+          if (sum==1 & carry==1) {
+            state.d = state.PASS;
+            io_led[1][7]=1;
+          }       
+          else{
+            state.d = state.FAIL;
+          }     
+          
+        state.PASS:
+          io_led[1]=1;
+      }
+    }
+    else{
+      
+      case(state.q){
+      
+        state.S000:
+          out[2:0]=000;
+          
+        state.S001:
+          out[2:0]=001;
+          
+        state.S010:
+          out[2:0]=010;
+          
+        state.S011:
+          out[2:0]=011;
+          
+        state.S100:
+          out[2:0]=100;
+          
+        state.S101:
+          out[2:0]=101;
+          
+        state.S110:
+          out[2:0]=110;
+          
+        state.S111:
+          out[2:0]=111;              
+      }
+    }  
+  } 
 }

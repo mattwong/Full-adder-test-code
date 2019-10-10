@@ -21,7 +21,11 @@ module mojo_top_0 (
     output reg [7:0] io_seg,
     output reg [3:0] io_sel,
     input [4:0] io_button,
-    input [23:0] io_dip
+    input [23:0] io_dip,
+    output reg [2:0] out,
+    input sum,
+    input carry,
+    output reg [1:0] vcc
   );
   
   
@@ -35,50 +39,176 @@ module mojo_top_0 (
     .in(M_reset_cond_in),
     .out(M_reset_cond_out)
   );
-  wire [1-1:0] M_edge_detector_out;
-  reg [1-1:0] M_edge_detector_in;
-  edge_detector_2 edge_detector (
+  wire [1-1:0] M_btn_cond_out;
+  reg [1-1:0] M_btn_cond_in;
+  button_conditioner_2 btn_cond (
     .clk(clk),
-    .in(M_edge_detector_in),
-    .out(M_edge_detector_out)
+    .in(M_btn_cond_in),
+    .out(M_btn_cond_out)
   );
-  wire [7-1:0] M_seg_seg;
-  wire [4-1:0] M_seg_sel;
-  reg [16-1:0] M_seg_values;
-  multi_seven_seg_3 seg (
+  wire [1-1:0] M_edge_dt_out;
+  reg [1-1:0] M_edge_dt_in;
+  edge_detector_3 edge_dt (
     .clk(clk),
-    .rst(rst),
-    .values(M_seg_values),
-    .seg(M_seg_seg),
-    .sel(M_seg_sel)
+    .in(M_edge_dt_in),
+    .out(M_edge_dt_out)
   );
-  wire [16-1:0] M_dec_ctr_digits;
-  reg [1-1:0] M_dec_ctr_inc;
-  multi_dec_ctr_4 dec_ctr (
-    .clk(clk),
-    .rst(rst),
-    .inc(M_dec_ctr_inc),
-    .digits(M_dec_ctr_digits)
-  );
-  wire [1-1:0] M_ctr_value;
-  counter_5 ctr (
-    .clk(clk),
-    .rst(rst),
-    .value(M_ctr_value)
-  );
+  localparam IDLE_state = 4'd0;
+  localparam S000_state = 4'd1;
+  localparam S001_state = 4'd2;
+  localparam S010_state = 4'd3;
+  localparam S100_state = 4'd4;
+  localparam S110_state = 4'd5;
+  localparam S101_state = 4'd6;
+  localparam S011_state = 4'd7;
+  localparam S111_state = 4'd8;
+  localparam PASS_state = 4'd9;
+  localparam FAIL_state = 4'd10;
+  
+  reg [3:0] M_state_d, M_state_q = IDLE_state;
+  reg [25:0] M_counter_d, M_counter_q = 1'h0;
   
   always @* begin
+    M_state_d = M_state_q;
+    M_counter_d = M_counter_q;
+    
     M_reset_cond_in = ~rst_n;
     rst = M_reset_cond_out;
-    led = {3'h0, io_button};
+    led = 8'h00;
     spi_miso = 1'bz;
     spi_channel = 4'bzzzz;
     avr_rx = 1'bz;
-    M_edge_detector_in = M_ctr_value;
-    M_dec_ctr_inc = M_edge_detector_out;
-    M_seg_values = M_dec_ctr_digits;
-    io_seg = ~M_seg_seg;
-    io_sel = ~M_seg_sel;
-    io_led = io_dip;
+    io_led = 24'h000000;
+    io_seg = 8'hff;
+    io_sel = 4'hf;
+    M_btn_cond_in = io_button[4+0-:1];
+    M_edge_dt_in = M_btn_cond_out;
+    io_led[16+0+0-:1] = carry;
+    io_led[16+1+0-:1] = sum;
+    out[0+2-:3] = io_dip[16+0+2-:3];
+    vcc[0+1-:2] = io_dip[0+0+1-:2];
+    if ((io_dip[16+2+0-:1] ^ io_dip[16+1+0-:1] ^ io_dip[16+0+0-:1]) == sum) begin
+      io_led[16+7+0-:1] = 1'h1;
+    end
+    if (((io_dip[16+2+0-:1] & io_dip[16+1+0-:1]) | (io_dip[16+2+0-:1] & io_dip[16+0+0-:1]) | (io_dip[16+1+0-:1] & io_dip[16+0+0-:1])) == carry) begin
+      io_led[16+6+0-:1] = 1'h1;
+    end
+    M_counter_d = M_counter_q + 1'h1;
+    if (M_counter_q[25+0-:1] == 1'h0) begin
+      
+      case (M_state_q)
+        IDLE_state: begin
+          if (M_edge_dt_out == 1'h1) begin
+            M_state_d = S000_state;
+          end
+        end
+        S000_state: begin
+          if (sum == 1'h0 & carry == 1'h0) begin
+            M_state_d = S001_state;
+            io_led[8+0+0-:1] = 1'h1;
+          end else begin
+            M_state_d = FAIL_state;
+          end
+        end
+        S001_state: begin
+          if (sum == 1'h1 & carry == 1'h0) begin
+            M_state_d = S010_state;
+            io_led[8+1+0-:1] = 1'h1;
+          end else begin
+            M_state_d = FAIL_state;
+          end
+        end
+        S010_state: begin
+          if (sum == 1'h1 & carry == 1'h0) begin
+            M_state_d = S100_state;
+            io_led[8+2+0-:1] = 1'h1;
+          end else begin
+            M_state_d = FAIL_state;
+          end
+        end
+        S100_state: begin
+          if (sum == 1'h1 & carry == 1'h0) begin
+            M_state_d = S110_state;
+            io_led[8+3+0-:1] = 1'h1;
+          end else begin
+            M_state_d = FAIL_state;
+          end
+        end
+        S110_state: begin
+          if (sum == 1'h0 & carry == 1'h1) begin
+            M_state_d = S101_state;
+            io_led[8+4+0-:1] = 1'h1;
+          end else begin
+            M_state_d = FAIL_state;
+          end
+        end
+        S101_state: begin
+          if (sum == 1'h0 & carry == 1'h1) begin
+            M_state_d = S011_state;
+            io_led[8+5+0-:1] = 1'h1;
+          end else begin
+            M_state_d = FAIL_state;
+          end
+        end
+        S011_state: begin
+          if (sum == 1'h0 & carry == 1'h1) begin
+            M_state_d = S111_state;
+            io_led[8+6+0-:1] = 1'h1;
+          end else begin
+            M_state_d = FAIL_state;
+          end
+        end
+        S111_state: begin
+          if (sum == 1'h1 & carry == 1'h1) begin
+            M_state_d = PASS_state;
+            io_led[8+7+0-:1] = 1'h1;
+          end else begin
+            M_state_d = FAIL_state;
+          end
+        end
+        PASS_state: begin
+          io_led[8+7-:8] = 1'h1;
+        end
+      endcase
+    end else begin
+      
+      case (M_state_q)
+        S000_state: begin
+          out[0+2-:3] = 1'h0;
+        end
+        S001_state: begin
+          out[0+2-:3] = 1'h1;
+        end
+        S010_state: begin
+          out[0+2-:3] = 4'ha;
+        end
+        S011_state: begin
+          out[0+2-:3] = 4'hb;
+        end
+        S100_state: begin
+          out[0+2-:3] = 7'h64;
+        end
+        S101_state: begin
+          out[0+2-:3] = 7'h65;
+        end
+        S110_state: begin
+          out[0+2-:3] = 7'h6e;
+        end
+        S111_state: begin
+          out[0+2-:3] = 7'h6f;
+        end
+      endcase
+    end
   end
+  
+  always @(posedge clk) begin
+    M_counter_q <= M_counter_d;
+    
+    if (rst == 1'b1) begin
+      M_state_q <= 1'h0;
+    end else begin
+      M_state_q <= M_state_d;
+    end
+  end
+  
 endmodule

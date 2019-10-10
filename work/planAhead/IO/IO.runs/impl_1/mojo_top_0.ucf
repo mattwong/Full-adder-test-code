@@ -5,7 +5,7 @@
 
 
 ####################################################################################
-# Constraints from file : 'io_shield.ucf'
+# Constraints from file : 'io.ucf'
 ####################################################################################
 
 NET "io_led[0]" LOC = P97;
@@ -85,7 +85,6 @@ NET "io_sel[2]" IOSTANDARD = LVTTL;
 NET "io_sel[3]" LOC = P12;
 NET "io_sel[3]" IOSTANDARD = LVTTL;
 
-# PULLDOWN is needed to prevent floating inputs
 NET "io_button[0]" LOC = P137;
 NET "io_button[0]" IOSTANDARD = LVTTL;
 NET "io_button[0]" PULLDOWN;
@@ -176,6 +175,13 @@ NET "io_dip[1]" PULLDOWN;
 NET "io_dip[0]" LOC = P120;
 NET "io_dip[0]" IOSTANDARD = LVTTL;
 NET "io_dip[0]" PULLDOWN;
+
+NET "sum" LOC = P50;
+NET "sum" IOSTANDARD = LVTTL;
+NET "sum" PULLDOWN;
+NET "carry" LOC = P51;
+NET "carry" IOSTANDARD = LVTTL;
+NET "carry" PULLDOWN;
 
 ####################################################################################
 # Constraints from file : 'mojo.ucf'
